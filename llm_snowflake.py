@@ -147,8 +147,7 @@ class SnowflakeCortexClient:
             return "Error: Either 'prompt' or both 'system_prompt'/'user_prompt' must be provided."
 
         options = {
-            "temperature": temperature,
-            "max_tokens": 8192,
+            "temperature": temperature
         }
 
         cursor = None

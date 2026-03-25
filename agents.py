@@ -33,6 +33,7 @@ from state import (
     _push_status,
     _reviewer_said_pass,
     _all_agents_done,
+    _pending_core_agents,
 )
 from agent_config import AGENT_CONFIGS, AGENT_PREREQS
 from agent_tools import make_communication_tools, make_stuck_tool
@@ -375,11 +376,7 @@ async def run_agent(agent_name: str, specs: str, loop: asyncio.AbstractEventLoop
                 _state_mod._swarm_done.set()
                 break
             else:
-                agents_not_done = [
-                    n
-                    for n, s in _agent_states.items()
-                    if n != "reviewer" and s in (AgentState.WORKING, AgentState.BLOCKED)
-                ]
+                agents_not_done = _pending_core_agents(exclude="reviewer")
                 _log_event(
                     "reviewer",
                     "REASON",

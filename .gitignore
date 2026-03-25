@@ -28,3 +28,7 @@ memory_store/
 # OS/editor noise
 .DS_Store
 Thumbs.db
+
+node_modules/
+output_deploy/
+

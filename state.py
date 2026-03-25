@@ -92,6 +92,16 @@ _agent_turn_count: dict[str, int] = {}
 _agent_summaries: dict[str, str] = {}
 _debate_tracker: dict[str, int] = {}
 
+# Persistent team agents participating in final PASS/DONE shutdown gating.
+_core_agents: tuple[str, ...] = (
+    "analyste",
+    "architecte",
+    "developpeur",
+    "devops",
+    "qa",
+    "reviewer",
+)
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -205,12 +215,24 @@ def _reviewer_said_pass() -> bool:
 
 def _all_agents_done(exclude: str = "reviewer") -> bool:
     """Check whether all agents except *exclude* have reached DONE state."""
-    for name, state in _agent_states.items():
+    for name in _core_agents:
         if name == exclude:
             continue
+        state = _agent_states.get(name)
         if state != AgentState.DONE:
             return False
     return True
+
+
+def _pending_core_agents(exclude: str = "reviewer") -> list[str]:
+    """Return core agents that are not DONE (excluding one optional agent)."""
+    pending: list[str] = []
+    for name in _core_agents:
+        if name == exclude:
+            continue
+        if _agent_states.get(name) != AgentState.DONE:
+            pending.append(name)
+    return pending
 
 
 def _output_file_count() -> int:
