@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 # ---------------------------------------------------------------------------
 # Re-exports for backward-compatibility (mcp_server.py imports from `main`)
 # ---------------------------------------------------------------------------
-from state import (
+from core.state import (
     _blackboard,  # noqa: F401
     _bb_lock,  # noqa: F401
     _agent_states,  # noqa: F401
@@ -32,9 +32,9 @@ from state import (
     _memory,  # noqa: F401 — reassigned below in run_swarm
     AgentState,  # noqa: F401
 )
-import state as _state_mod
+import core.state as _state_mod
 
-from agent_config import AGENT_CONFIGS  # noqa: F401
+from agents.agent_config import AGENT_CONFIGS  # noqa: F401
 
 load_dotenv()
 
@@ -46,7 +46,7 @@ _use_web_ui: bool = False
 # LLM Provider
 # ---------------------------------------------------------------------------
 try:
-    from llm_provider import LLMRouter, BaseLLMProvider
+    from llm.llm_provider import LLMRouter, BaseLLMProvider
 
     _LLM_AVAILABLE = True
 except ImportError:
@@ -190,14 +190,14 @@ async def run_swarm(specs: str, use_rich: bool = True):
     import asyncio as _asyncio
     import threading as _threading
 
-    from memory import HybridMemory
+    from core.memory import HybridMemory
     import sys as _sys
 
     _this_module = _sys.modules[__name__]
     _use_web_ui = _this_module._use_web_ui
     _WEB_UI_AVAILABLE = _state_mod._WEB_UI_AVAILABLE
 
-    from state import (
+    from core.state import (
         _agent_health,
         _agent_sleep_durations,
         _agent_summaries,
@@ -210,11 +210,11 @@ async def run_swarm(specs: str, use_rich: bool = True):
         _blackboard,
         _health_lock,
     )
-    from agent_config import AGENT_CONFIGS
-    from agents import run_agent
-    from spawner import spawner_loop
-    from dashboard import SwarmDashboard
-    from deployement import DeploymentAgent
+    from agents.agent_config import AGENT_CONFIGS
+    from agents.agents import run_agent
+    from agents.spawner import spawner_loop
+    from ui.dashboard import SwarmDashboard
+    from deployment.deployement import DeploymentAgent
 
     # Make state-module globals accessible to mcp_server via `main._memory` etc.
     global _memory  # noqa: PLW0603
@@ -238,7 +238,7 @@ async def run_swarm(specs: str, use_rich: bool = True):
     loop = _asyncio.get_event_loop()
 
     if _use_web_ui and _WEB_UI_AVAILABLE:
-        import web_dashboard
+        import ui.web_dashboard as web_dashboard
 
         async def _web_ui_sync_loop():
             while not _state_mod._swarm_done.is_set():
@@ -365,7 +365,7 @@ async def run_swarm(specs: str, use_rich: bool = True):
                 pass
 
         if _use_web_ui and _WEB_UI_AVAILABLE:
-            import web_dashboard
+            import ui.web_dashboard as web_dashboard
 
             web_dashboard.set_pipeline_status("done")
 
@@ -487,7 +487,7 @@ def main():
     _state_mod._frontend_blocks = _frontend_blocks
 
     if _state_mod._use_web_ui and _state_mod._WEB_UI_AVAILABLE:
-        import web_dashboard
+        import ui.web_dashboard as web_dashboard
 
         web_dashboard.start_dashboard_server()
 
@@ -589,7 +589,7 @@ def main():
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
     if waiting_for_ui:
-        import web_dashboard
+        import ui.web_dashboard as web_dashboard
 
         _ui_specs_event = threading.Event()
         _ui_specs: list = [None, None]  # [specs, frontend_img_path]
