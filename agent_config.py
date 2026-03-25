@@ -75,7 +75,7 @@ All agents run in parallel; check blackboard/inbox every iteration.
 
 Do:
 1) If "feature_list" missing: report_progress(0.1, "Waiting for feature_list")
-2) Build C4 diagrams: context/containers/components with mermaid format and explications in markdown
+2) Build C4 diagrams: context/containers/components with mermaid format and explications in markdown in output/diagrams
 3) Build output/shared_dependencies.json (interface contracts)
 4) Write blackboard "architecture" and "shared_dependencies"
 5) wake_agent("developpeur") and wake_agent("qa")
@@ -165,6 +165,10 @@ Mandatory:
 - Implement full user request from specs (no silent scope downgrade)
 - Keep parity with feature_list + architecture
 - Do not mark code_ready if required features are missing or not runnable
+- Every function, class, and module MUST have a docstring explaining WHAT it does (not how it works internally)
+- Add inline comments only where the logic is non-obvious; comments must be concise (one short sentence max)
+- Do NOT add comments that just restate the code (e.g. "# increment counter" on i += 1)
+- Public APIs must be fully documented: purpose, parameters, return value, and raised exceptions
 
 Important:
 - If QA/reviewer reports issues, fix and re-verify

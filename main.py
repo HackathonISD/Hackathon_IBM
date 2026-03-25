@@ -317,6 +317,29 @@ async def run_swarm(specs: str, use_rich: bool = True):
             "All persistent agents launched -- stops on reviewer PASS + all agents DONE",
         )
 
+        async def _completion_watcher():
+            """Background task: set swarm_done once PASS + all agents DONE."""
+            from datetime import datetime as _dt
+
+            while not _state_mod._swarm_done.is_set():
+                if _reviewer_said_pass() and _all_agents_done():
+                    with _bb_lock:
+                        _blackboard["final_status"] = {
+                            "value": "PASS",
+                            "author": "watcher",
+                            "timestamp": _dt.now().isoformat(),
+                        }
+                    _log_event(
+                        "reviewer",
+                        "DONE",
+                        "Completion watcher: PASS + all agents DONE -- stopping swarm",
+                    )
+                    _state_mod._swarm_done.set()
+                    return
+                await _asyncio.sleep(2)
+
+        watcher_task = _asyncio.create_task(_completion_watcher())
+
         agent_names = list(AGENT_CONFIGS.keys())
         results = await _asyncio.gather(
             *[run_agent(name, specs, loop) for name in agent_names],
@@ -333,11 +356,13 @@ async def run_swarm(specs: str, use_rich: bool = True):
 
     finally:
         _state_mod._swarm_done.set()
+        watcher_task.cancel()
         spawner_task.cancel()
-        try:
-            await spawner_task
-        except _asyncio.CancelledError:
-            pass
+        for _t in (watcher_task, spawner_task):
+            try:
+                await _t
+            except _asyncio.CancelledError:
+                pass
 
         if _use_web_ui and _WEB_UI_AVAILABLE:
             import web_dashboard
