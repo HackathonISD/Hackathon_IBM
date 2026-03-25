@@ -165,41 +165,8 @@ When running in MCP mode, the server exposes tools to:
 - query the hybrid memory store
 - retrieve recent agent event logs
 
-## Repository notes
-
-- Generated deliverables, local memory, uploaded files, virtual environments, databases, and logs are ignored via `.gitignore`.
-- Keep `env.example` committed, but do not commit `.env`.
-- The `output/` directory is runtime-generated and should be treated as disposable.
-
 ---
 
-## Output
-
-All generated files land in `./output/`:
-```
-output/
-├── feature_list.json       ← Analyste
-├── adr/
-│   └── ADR-001.md
-├── diagrams/               ← Architecte
-│   ├── c4_context.mmd
-│   ├── c4_containers.mmd
-│   └── c4_components.mmd
-├── shared_dependencies.json
-├── devops/                 ← DevOps
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   └── .github/workflows/ci.yml
-├── src/                    ← Développeur
-│   └── main.py (+ all modules)
-├── tests/                  ← Développeur + QA
-│   └── test_*.py
-└── qa_report.md            ← QA
-```
-
-Long-term memory is persisted in `./memory_store/` (survives restarts).
-
----
 
 ## How the Spawner works
 
